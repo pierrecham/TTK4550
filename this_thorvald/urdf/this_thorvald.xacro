@@ -1,0 +1,175 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="sensor_frames">
+
+<link name="base_sensors"/>
+
+
+<link name="camera_link">
+  <visual>
+    <geometry>
+      <cylinder length="0.1" radius="0.05" />
+    </geometry>
+    <origin rpy="0 ${pi/2} 0" xyz="0 0 0" />
+    <material name="red"/>
+  </visual>
+</link>
+<gazebo reference="camera_link">
+  <material>Gazebo/Blue</material>
+</gazebo>
+
+<joint name="base_link_base_sens" type="fixed">
+  <parent link="/base_link"/>
+  <child link="base_sensors"/>
+  <origin xyz="0.0 0 0.562" rpy="0 0 0"/>
+</joint>
+
+<joint name="base_sens_cam" type="fixed">
+  <parent link="base_sensors"/>
+  <child link="camera_link"/>
+  <origin xyz="0.15 0. -0.152" rpy="0 ${10./180.*pi } 0"/>
+</joint>
+
+
+
+
+<!-- camera -->
+<gazebo reference="camera_link">
+  <sensor type="camera" name="camera1">
+    <update_rate>30.0</update_rate>
+    <camera name="head">
+      <horizontal_fov>1.3962634</horizontal_fov>
+      <image>
+        <width>800</width>
+        <height>800</height>
+        <format>R8G8B8</format>
+      </image>
+      <clip>
+        <near>0.02</near>
+        <far>300</far>
+      </clip>
+      <noise>
+        <type>gaussian</type>
+        <!-- Noise is sampled independently per pixel on each frame.
+             That pixel's noise value is added to each of its color
+             channels, which at that point lie in the range [0,1]. -->
+        <mean>0.0</mean>
+        <stddev>0.007</stddev>
+      </noise>
+    </camera>
+    <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+      <alwaysOn>true</alwaysOn>
+      <updateRate>0.0</updateRate>
+      <cameraName>this_thorvald/camera1</cameraName>
+      <imageTopicName>image_raw</imageTopicName>
+      <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+      <frameName>camera_link</frameName>
+      <hackBaseline>0.07</hackBaseline>
+      <distortionK1>0.0</distortionK1>
+      <distortionK2>0.0</distortionK2>
+      <distortionK3>0.0</distortionK3>
+      <distortionT1>0.0</distortionT1>
+      <distortionT2>0.0</distortionT2>
+    </plugin>
+  </sensor>
+</gazebo>
+
+
+
+
+
+
+<!-- EXTRAS -->
+
+<link name="guren_ii_body">
+  <inertial>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <mass value="40"/>
+    <inertia
+      ixx="0.26" ixy="0.0" ixz="0.0"
+      iyy="0.26" iyz="0.0"
+      izz="0.26"/>
+  </inertial>
+  <visual>
+    <geometry>
+      <mesh filename="package://thorvald_model/meshes/guren_modules/guren_ii_body.stl"/>
+    </geometry>
+    <material name="whiter">
+      <color rgba="1 1 1 1"/>
+    </material>
+  </visual>
+  <collision>
+    <geometry>
+      <mesh filename="package://thorvald_model/meshes/guren_modules/guren_ii_body.stl"/>
+    </geometry>
+  </collision>
+</link>
+
+
+<joint name="base_body" type="fixed">
+  <parent link="/base_link"/>
+  <child link="guren_ii_body"/>
+  <origin xyz="0.2 0.25 0.1" rpy="${pi/2} 0 ${-pi/2}"/>
+</joint>
+
+<link name="caster0">
+  <inertial>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <mass value="8"/>
+    <inertia
+      ixx="0.037" ixy="0.0" ixz="0.0"
+      iyy="0.04" iyz="0.0"
+      izz="0.037"/>
+  </inertial>
+  <visual>
+    <geometry>
+      <cylinder length="0.10" radius="0.10" />
+    </geometry>
+    <material name="black">
+      <color rgba="0 0 0 1"/>
+    </material>
+  </visual>
+  <collision>
+    <geometry>
+      <cylinder length="0.10" radius="0.10" />
+    </geometry>
+  </collision>
+</link>
+
+<joint name="base_caster0" type="fixed">
+  <parent link="/base_link"/>
+  <child link="caster0"/>
+  <origin xyz="-0.48 -0.35 0.1" rpy="${pi/2} 0 0"/>
+</joint>
+
+<link name="caster1">
+  <inertial>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <mass value="8"/>
+    <inertia
+      ixx="0.37" ixy="0.0" ixz="0.0"
+      iyy="0.4" iyz="0.0"
+      izz="0.37"/>
+  </inertial>
+  <visual>
+    <geometry>
+      <cylinder length="0.10" radius="0.10" />
+    </geometry>
+    <material name="black">
+      <color rgba="0 0 0 1"/>
+    </material>
+  </visual>
+  <collision>
+    <geometry>
+      <cylinder length="0.10" radius="0.10" />
+    </geometry>
+  </collision>
+</link>
+
+<joint name="base_caster1" type="fixed">
+  <parent link="/base_link"/>
+  <child link="caster1"/>
+  <origin xyz="-0.48 0.35 0.1" rpy="${pi/2} 0 0"/>
+</joint>
+</robot>
+
+

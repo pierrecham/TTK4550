@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+
+<launch>
+
+  <!-- Robot name and tf prefix -->
+  <arg name="robot_name" default="" />
+  <arg name="tf_prefix" default="" />
+  <arg name="robot_model" default="$(find this_thorvald)/config/this_thorvald.yaml" />
+  <arg name="model_extras" default="$(find this_thorvald)/urdf/this_thorvald.xacro" />
+  <arg name="simple_sim" default="True" />
+
+  <!-- Base odometry frame args
+       If enable_odom_tf is true, the base driver node will broadcast a transform between the odometry frame and the base_link frame
+       odom_frame_id sets the name of the odometry frame used in tf broadcast and odometry topic. -->
+  <arg name="enable_odom_tf" default="True" />
+  <arg name="odom_frame_id" default="odom" />
+
+  <!-- Twist mux args
+       twist and lock topics to be used by twist_mux, command multiplexer -->
+  <arg name="twist_mux_topics" value="$(find thorvald_twist_mux)/config/twist_mux_topics.yaml" />
+  <arg name="twist_mux_locks" value="$(find thorvald_twist_mux)/config/twist_mux_locks.yaml" />
+
+
+  <!-- Teleop args
+       The teleop node can be used with different hardware, and can also be configured to call any number of std_srvs/Trigger services.
+       You can use xbox.yaml from thorvald_teleop as an example when configuring your own controller -->
+  <arg name="joy_dev" default="/dev/input/js0" />
+  <arg name="joy_autorepeat_rate" value="20" />
+  <arg name="joy_deadzone" value="0.2" />
+  <arg name="teleop_controller" value="$(find thorvald_teleop)/config/xbox.yaml" />
+
+
+
+
+  <!-- Thorvald bringup -->
+  <include file="$(find thorvald_bringup)/launch/thorvald_bringup.launch">
+    <arg name="robot_name" value="$(arg robot_name)" />
+    <arg name="tf_prefix" value="$(arg tf_prefix)" />
+    <arg name="robot_model" value="$(arg robot_model)" />
+    <arg name="model_extras" value="$(arg model_extras)" />
+    <arg name="simple_sim" value="$(arg simple_sim)" />
+    <arg name="enable_odom_tf" default="$(arg enable_odom_tf)" />
+    <arg name="odom_frame_id" value="$(arg odom_frame_id)" />
+  </include>
+
+  <!-- Twist mux bringup -->
+  <include file="$(find thorvald_twist_mux)/launch/twist_mux.launch">
+    <arg name="config_topics" value="$(arg twist_mux_topics)" />
+    <arg name="config_locks" value="$(arg twist_mux_locks)" />
+  </include>
+
+
+  <!-- Teleop bringup -->
+  <include file="$(find thorvald_teleop)/launch/teleop.launch">
+    <arg name="joy_dev" value="$(arg joy_dev)" />
+    <arg name="joy_autorepeat_rate" value="$(arg joy_autorepeat_rate)" />
+    <arg name="joy_deadzone" value="$(arg joy_deadzone)" />
+    <arg name="teleop_controller" value="$(arg teleop_controller)" />
+  </include>
+
+
+  <!-- Gazebo bringup -->
+  <arg name="use_gazebo" default="True" />
+  <include file="$(find gazebo_ros)/launch/empty_world.launch" if="$(arg use_gazebo)" />
+  <node pkg="gazebo_ros" type="spawn_model" name="spawn_model" args="-urdf -param /$(arg robot_name)/robot_description -model $(arg robot_name) -x 0 -y 0" if="$(arg use_gazebo)" />
+  <node pkg="gazebo_ros" type="spawn_model" name="spawn_rail" args="-file $(find this_thorvald)/urdf/rail.urdf -urdf -model my_object" if="$(arg use_gazebo)" />
+
+</launch>
